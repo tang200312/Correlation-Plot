@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 
 import matplotlib
@@ -553,9 +554,26 @@ def plot_pairwise_matrix(df, corr):
 # Main
 # =========================================================
 
-def main():
+def main(data_csv=None, output_dir=None, corr_method=None):
 
     setup_style()
+
+    # Apply CLI overrides if provided
+    if data_csv:
+        global DATA_CSV
+        DATA_CSV = Path(data_csv)
+    if output_dir:
+        global OUTPUT_DIR
+        OUTPUT_DIR = Path(output_dir)
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    if corr_method:
+        global CORR_METHOD
+        CORR_METHOD = corr_method
+
+    print(f"Input:  {DATA_CSV}")
+    print(f"Output: {OUTPUT_DIR.resolve()}")
+    print(f"Method: {CORR_METHOD}")
+    print("-" * 40)
 
     df = load_numeric_data(DATA_CSV)
 
@@ -572,4 +590,37 @@ def main():
 
 if __name__ == "__main__":
 
-    main()
+    parser = argparse.ArgumentParser(
+        description="Publication-quality correlation visualization",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  python src/plot_correlation.py
+  python src/plot_correlation.py --data my_data.csv
+  python src/plot_correlation.py --data my_data.csv --method spearman
+  python src/plot_correlation.py --data my_data.csv --out ./results --method kendall
+        """,
+    )
+
+    parser.add_argument(
+        "--data", "-d",
+        default=None,
+        help="Path to input CSV (default: data/example_data.csv)",
+    )
+
+    parser.add_argument(
+        "--out", "-o",
+        default=None,
+        help="Output directory (default: figures/)",
+    )
+
+    parser.add_argument(
+        "--method", "-m",
+        choices=["pearson", "spearman", "kendall"],
+        default=None,
+        help="Correlation method (default: pearson)",
+    )
+
+    args = parser.parse_args()
+
+    main(data_csv=args.data, output_dir=args.out, corr_method=args.method)

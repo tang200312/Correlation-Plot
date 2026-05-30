@@ -11,6 +11,8 @@
     ·
     <a href="#quick-start">Quick Start</a>
     ·
+    <a href="#usage">Usage</a>
+    ·
     <a href="#configuration">Configuration</a>
   </p>
 
@@ -28,6 +30,7 @@
   <ol>
     <li><a href="#demo">Demo</a></li>
     <li><a href="#quick-start">Quick Start</a></li>
+    <li><a href="#usage">Usage</a></li>
     <li><a href="#features">Features</a></li>
     <li><a href="#project-structure">Project Structure</a></li>
     <li><a href="#configuration">Configuration</a></li>
@@ -57,22 +60,70 @@
 git clone https://github.com/tang200312/Correlation-Plot.git
 cd Correlation-Plot
 
-# 2. Install
+# 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Run
+# 3. Run with example data
 python src/plot_correlation.py
 ```
 
-Three files are written to `figures/`:
+Three files appear in `figures/`:
 
 | Output | Description |
 |---|---|
-| `correlation_matrix.csv` | Full pairwise correlation table |
 | `correlation_bubble_plot.png` | Bubble matrix (300 DPI) |
 | `pairwise_relationship_matrix.png` | Multi-panel matrix (300 DPI) |
+| `correlation_matrix.csv` | Full pairwise correlation table |
 
-**To use your own data:** replace `data/example_data.csv` with any numeric CSV and rerun.
+---
+
+## Usage
+
+### Use your own CSV
+
+```bash
+python src/plot_correlation.py --data /path/to/your_data.csv
+```
+
+Your CSV can have **any number of rows and columns**. The script automatically picks all numeric columns — non-numeric columns (text, dates, etc.) are skipped. First row must be column headers.
+
+Example of a valid CSV:
+
+| NDVI | EVI | Chlorophyll | Biomass |
+|------|-----|-------------|---------|
+| 0.36 | 0.26 | 2.1 | 134.5 |
+| 0.42 | 0.31 | 2.5 | 156.2 |
+| ... | ... | ... | ... |
+
+### Change correlation method
+
+```bash
+python src/plot_correlation.py --data your_data.csv --method spearman
+python src/plot_correlation.py --data your_data.csv --method kendall
+```
+
+### Custom output directory
+
+```bash
+python src/plot_correlation.py --data your_data.csv --out ./results
+```
+
+### See all options
+
+```bash
+python src/plot_correlation.py --help
+```
+
+```
+usage: plot_correlation.py [-h] [--data DATA] [--out OUT] [--method {pearson,spearman,kendall}]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --data DATA, -d DATA  Path to input CSV (default: data/example_data.csv)
+  --out OUT, -o OUT     Output directory (default: figures/)
+  --method METHOD, -m METHOD
+                        Correlation method (default: pearson)
+```
 
 ---
 
@@ -80,10 +131,10 @@ Three files are written to `figures/`:
 
 - **Bubble plot** — color-coded grid squares, size proportional to |r|, clean journal style
 - **Pairwise matrix** — everything in one figure: distribution, scatter, regression, r-values, significance
-- **Significance stars** — \*\*\*(p<0.001), \*\*(p<0.01), \*(p<0.05) as you'd expect in a paper
-- **Times New Roman** throughout — matches the typography most journals require
+- **Significance stars** — \*\*\*(p<0.001), \*\*(p<0.01), \*(p<0.05)
+- **Times New Roman** typography — matches most journal requirements
 - **Configurable** — swap method (Pearson/Spearman/Kendall), colors, DPI from constants at the top
-- **Data-agnostic** — feed it any numeric CSV, it auto-selects numeric columns only
+- **Any numeric CSV** — auto-detects columns, ignores non-numeric data
 
 ---
 
@@ -97,6 +148,7 @@ Three files are written to `figures/`:
 │   └── example_data.csv       # sample dataset (11 features, 200 samples)
 ├── figures/                   # output (auto-created on first run)
 ├── requirements.txt
+├── LICENSE
 ├── .gitignore
 └── README.md
 ```
@@ -105,15 +157,22 @@ Three files are written to `figures/`:
 
 ## Configuration
 
-Open `src/plot_correlation.py` and tweak the constants near the top:
+### Command-line (recommended)
+
+| Flag | Default | Description |
+|---|---|---|
+| `--data` / `-d` | `data/example_data.csv` | Input CSV path |
+| `--out` / `-o` | `figures/` | Output directory |
+| `--method` / `-m` | `pearson` | Correlation method |
+
+### Edit `src/plot_correlation.py` for deeper customization
 
 | Constant | Default | What it does |
 |---|---|---|
-| `CORR_METHOD` | `"pearson"` | Correlation method — also `"spearman"`, `"kendall"` |
 | `FIG_DPI` | `300` | Output resolution (300 = journal-ready) |
-| `PALETTE` | `["#eaf3e2", …, "#0868a6"]` | Colormap for the bubble plot |
-| `GREEN` | `"#7aa06a"` | Color for positive correlation / histograms |
-| `PINK` | `"#d65a7f"` | Color for negative correlation / scatter points |
+| `PALETTE` | 5-color blue-green gradient | Bubble plot colormap |
+| `GREEN` | `#7aa06a` | Color for positive correlation / histograms |
+| `PINK` | `#d65a7f` | Color for negative correlation / scatter points |
 
 ---
 
@@ -136,4 +195,4 @@ pip install -r requirements.txt
 
 ## License
 
-Distributed under the MIT License. Use freely in your research or project.
+MIT — see [LICENSE](LICENSE). Use freely in your research or project.
